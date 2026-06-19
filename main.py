@@ -26,32 +26,43 @@ def send_slack_notification(message: str) -> None:
     else:
         raise Exception(f"Failed to send Slack notification: {data.get('error')}")
 
-def generate_motivational_post():
-    topic = input("Enter the topic for your motivational post: ")
+def dev_assistant():
+    # Prompt the developer for their question or technical task
+    topic = input("AI bot assistant for devs: ")
+    
     prompt = f"""
-    Generate a short, inspiring, and motivational post for a team Slack channel.
-    The post should be about the following topic: {topic}.
-    Keep the tone positive and encouraging. It should be concise and engaging.
-    Do not include hashtags or emojis.
+    You are a highly efficient developer assistant. Provide a concise, clear, and direct 
+    solution, explanation, or code snippet for the following request:
+    
+    Request: {topic}
+    
+    Keep the tone professional and helpful. Avoid fluff or generic introductory text so 
+    it reads cleanly when sent to the team Slack channel. Do not include hashtags or emojis.
     """
+    
     try:
         response = client.chat.completions.create(
-            model="gemini-2.5-flash",
+            model="models/gemini-2.5-flash",
             messages=[
                 {
                     "role": "system",
-                    "content": "You are an AI assistant specialized in writing motivating and encouraging messages for professional teams."
+                    "content": "You are an expert full-stack software development assistant specializing in writing clean code, troubleshooting bugs, and explaining technical concepts."
                 },
                 {"role": "user", "content": prompt}
             ]
         )
-        motivational_post = response.choices[0].message.content
-        print("\n--- Motivational Post for Slack Team ---")
-        print(motivational_post)
+        
+        # Extract the assistant's technical response
+        dev_answer = response.choices[0].message.content
+        print(dev_answer)
         print("\n----------------------------------------")
-        send_slack_notification(motivational_post)
+        
+        # Forward the developer response straight to your channel
+        send_slack_notification(dev_answer)
+        
     except Exception as e:
-        print(f"An error occurred while generating the post: {e}")
-        print("Please ensure your API key is correct and the model name is valid for your setup, and that SLACK_ACCESS_TOKEN is set.")
+        print(f"An error occurred while generating the response: {e}")
+        print("Please ensure your API key is correct, the model name is valid for your setup, and that SLACK_ACCESS_TOKEN is set.")
 
-generate_motivational_post()
+# Call the correct function name to run it locally
+dev_assistant()
